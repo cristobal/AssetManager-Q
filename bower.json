@@ -6,7 +6,7 @@
   "main": "dist/assetmanager-q.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/furusystems/AssetManager-Q.git"
+    "url": "git://github.com/furusystems/assetmanager-q.git"
   },
   "keywords": [
     "asset",
