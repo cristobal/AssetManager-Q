@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>AssetManager Q - Demo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+
+            body {
+                position: relative;
+                text-align: center;
+            }
+
+            body .container {
+                position: relative;
+                margin: 4em 2em;
+                text-align: left;
+                width: 600px;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div class="container">
+            <h1>AssetManager Q - Demo.</h1>
+
+            <div>
+                <img src="images/q.png" width="100" /><br />
+                <button id="loadButton" type="button">Load images</button>
+            </div><br />
+
+            <img id="first" data-src="holder.js/150x150/vine/text:JPG" width="150" height="150" />
+            <img id="second" data-src="holder.js/150x150/sky/text:GIF" width="150" height="150" />
+            <img id="third" data-src="holder.js/150x150/lava/text:PNG" width="150" height="150"  />
+
+            <h4>Example Code</h4>
+<pre>
+(function () {
+    var load = true,
+        assetManager = new AssetManager();
+
+    function loadImages() {
+        if (!load) {
+            return;
+        }
+        load = false;
+
+        var promise =
+            assetManager
+                .add([
+                    {id: "first", src: "images/first.png"},
+                    {id: "second", src: "images/second.gif"},
+                    {id: "third", src: "images/third.jpg"}
+                    ])
+                .load();
+        promise.then(function (assets) {
+            for (var i = 0, l = assets.length; i < l; i++) {
+                document.getElementById(assets[i].id).src = assets[i].src;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("loadButton").addEventListener("click", loadImages);
+    });
+})();
+</pre>
+        </div>
+
+        <script src="components/holderjs/holder.js"></script>
+        <script src="components/q/q.js"></script>
+        <script src="js/assetmanager-q.js"></script>
+        <script>
+        (function () {
+            var load = true,
+                assetManager = new AssetManager();
+
+            function loadImages() {
+                if (!load) {
+                    return;
+                }
+                load = false;
+
+                var promise =
+                    assetManager
+                        .add([
+                            {id: "first", src: "images/first.png"},
+                            {id: "second", src: "images/second.gif"},
+                            {id: "third", src: "images/third.jpg"}
+                            ])
+                        .load();
+                promise.then(function (assets) {
+                    for (var i = 0, l = assets.length; i < l; i++) {
+                        document.getElementById(assets[i].id).src = assets[i].src;
+                    }
+                });
+            }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("loadButton").addEventListener("click", loadImages);
+            });
+        })();
+        </script>
+    </body>
+</html>

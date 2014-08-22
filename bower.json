@@ -1,0 +1,36 @@
+{
+  "name": "AssetManager-Q",
+  "title": "AssetManager Q",
+  "version": "0.0.1",
+  "description": "Javascript Asset Manager using the Q promises library",
+  "main": "dist/AssetManager-Q.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cristobal/assetmanager-q.git"
+  },
+  "authors": [
+    "Cristobal Dabed<cristobal@dabed.org>"
+  ],
+  "keywords": [
+    "asset",
+    "manager",
+    "promises",
+    "Q",
+    "UMD"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "src/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "q": "1.0.1"
+  },
+  "devDependencies": {
+    "holderjs": "~2.4.0"
+  }
+}

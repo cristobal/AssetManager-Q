@@ -1,0 +1,28 @@
+{
+  "name": "AssetManager-Q",
+  "version": "0.0.1",
+  "author": "your name<yourname@example.com>",
+  "description": "Description of your Library",
+  "keywords": [
+    "asset",
+    "manager",
+    "promises",
+    "Q",
+    "UMD"
+  ],
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-bump": "0.0.15",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-connect": "^0.8.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-open": "^0.2.3"
+  },
+  "dependencies": {}
+}
