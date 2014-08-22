@@ -6,6 +6,7 @@ Javascript Asset Manager using the [Q](https://github.com/kriskowal/q) promises 
 
 ## Example Code
 
+  var assetManager = new AssetManager();
 	var promise = assetManager
         .add([
             {id: "first", src: "images/first.png"},
@@ -26,6 +27,9 @@ Javascript Asset Manager using the [Q](https://github.com/kriskowal/q) promises 
   * timeout for images or assets not loaded
   * load assets other than image supported formats use XHR2 as in preloadjs?
   * cache flags for production make browser remembers the image for faster loading
+  * Sequential Wrapper or sequential loader options with pause/resume
+  * Events for asset manager start/loaded/total/fail
+  * Events for each asset loaded start/progress/loaded/fail
 
 
 #### Ideas
