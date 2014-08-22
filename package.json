@@ -1,6 +1,6 @@
 {
   "name": "AssetManager-Q",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Cristobal Dabed",
   "description": "Description of your Library",
   "keywords": [
@@ -11,7 +11,7 @@
     "UMD"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-bump": "0.0.15",

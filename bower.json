@@ -1,7 +1,7 @@
 {
   "name": "AssetManager-Q",
   "title": "AssetManager Q",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Javascript Asset Manager using the Q promises library",
   "main": "dist/assetmanager-q.js",
   "repository": {
@@ -19,7 +19,7 @@
     "UMD"
   ],
   "license": "MIT",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
