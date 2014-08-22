@@ -2,7 +2,9 @@
   "name": "AssetManager-Q",
   "title": "AssetManager Q",
   "version": "0.0.2",
-  "author": "Cristobal Dabed",
+  "author": {
+    "name": "Cristobal Dabed"
+  },
   "description": "Javascript Asset Manager using the Q promises library",
   "keywords": [
     "asset",
