@@ -1,8 +1,9 @@
 {
   "name": "AssetManager-Q",
-  "version": "0.0.1",
+  "title": "AssetManager Q",
+  "version": "0.0.2",
   "author": "Cristobal Dabed",
-  "description": "Description of your Library",
+  "description": "Javascript Asset Manager using the Q promises library",
   "keywords": [
     "asset",
     "manager",
@@ -11,7 +12,7 @@
     "UMD"
   ],
   "license": "MIT",
-  "private": true,
+  "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-bump": "0.0.15",
@@ -23,6 +24,5 @@
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-open": "^0.2.3"
-  },
-  "dependencies": {}
+  }
 }
