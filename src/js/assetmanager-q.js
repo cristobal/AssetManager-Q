@@ -15,13 +15,61 @@
 
   //--------------------------------------------------------------------------
   //
+  //  Helper Functions
+  //
+  //-------------------------------------------------------------------------
+  var getClass = {}.toString,
+      hasOwnProperty = {}.hasOwnProperty;
+
+  var slice = Array.prototype.slice;
+  var nativeBind = sub;
+
+  function args_to_array(args) {
+    return slice.call(args, 0);
+  }
+
+  function bind(fn, c) {
+    if (nativeBind &&
+        fn.bind === nativeBind) {
+      return nativeBind.apply(fn, slice.call(arguments, 1));
+    }
+
+    var args = slice.call(arguments, 2);
+    return function () {
+      return fn.apply(c, args.concat(slice.call(arguments)));
+    }
+  }
+
+  function extend(child, parent) {
+    var F = function () {
+      this.__construct = function () {
+        parent.apply(this, arguments);
+      };
+      this.constructor = child;
+    };
+    F.prototype = parent.prototype;
+
+    // append from subclass prototype
+    var key;
+    for (key in child.prototype) {
+      F.prototype[key] = child.prototype[key];
+    }
+
+    // append static props from subclass
+    for (key in child)  {
+      F[key] = child[key];
+    }
+
+    child.prototype = new F;
+    child.__super__ = parent.prototype;
+  }
+
+
+  //--------------------------------------------------------------------------
+  //
   //  Object Functions
   //
   //-------------------------------------------------------------------------
-  function args_to_array(args) {
-    return Array.prototype.slice.call(args, 0);
-  }
-
   function is_type(a, t) {
     return typeof(a) === t;
   }
@@ -31,20 +79,24 @@
       return Array.isArray(a);
     }
 
-    return Object.prototype.toString.call(a) === '[object Array]';
+    return getClass.call(a) === '[object Array]';
   }
 
   function is_object(a) {
     return !!(a && is_type(a, "object"));
   }
 
+  function is_function(a) {
+    return !!(a && a.constructor && a.call && a.apply);
+  }
+
   function is_string(a) {
     return is_type(a, "string") ||
-      Object.prototype.toString.call(a) === '[object String]';
+      getClass.call(a) === '[object String]';
   }
 
   function obj_has(obj, key) {
-    return Object.prototype.hasOwnProperty.call(obj, key);
+    return hasOwnProperty.call(obj, key);
   }
 
 
@@ -68,12 +120,42 @@
         Array.prototype.slice.call(arguments, 1));
     }
 
-    var t = array_size(args_to_array(arguments)) > 2 ?
-              arguments[2] : undefined;
+    var c = array_size(args_to_array(arguments)) > 2 ?
+            arguments[2] : undefined;
     for (var i = 0, l = array_size(a); i < l; i++) {
-      cb.apply(t, [a[i], i, a]);
+      cb.apply(c, [a[i], i, a]);
     }
   }
+
+  function array_filter(a, cb) {
+    return a;
+  }
+
+
+  //--------------------------------------------------------------------------
+  //
+  //  Events Module
+  //
+  //-------------------------------------------------------------------------
+  function Events(types) {
+    this._listeners = {};
+    array_each(types, function (type) {
+      this._listeners[type] = [];
+    }, this);
+  }
+
+  Events.prototype.on = function (event) {
+
+  };
+
+  Events.prototype.off = function (event) {
+
+  };
+
+  Events.prototype.emit = function (event) {
+
+  };
+
 
   //--------------------------------------------------------------------------
   //
@@ -87,6 +169,7 @@
   };
 
   function Asset(id, src) {
+    this.__construct(["loaded"]);
     this.id    = id;
     this.src   = src;
     this.state = AssetState.PENDING;
@@ -96,9 +179,29 @@
     this.state = state;
   };
 
-  Asset.prototype.isLoaded = function () {
-    return this.state === AssetState.state;
+  Asset.protoype.load = function () {
+    if (!this.isPending()) {
+      return;
+    }
+    this.setState(AssetState.LOADING);
+    this._image = new Image();
+
+
   };
+
+  Asset.prototype.isPending = function () {
+    return this.state === AssetState.PENDING;
+  };
+
+  Asset.prototype.isLoading = function () {
+    return this.state === AssetState.LOADING;
+  };
+
+  Asset.prototype.isLoaded = function () {
+    return this.state === AssetState.LOADED;
+  };
+
+  extend(Asset, Events);
 
 
   //--------------------------------------------------------------------------

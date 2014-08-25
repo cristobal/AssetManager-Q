@@ -15,9 +15,9 @@ Javascript Asset Manager using the [Q](https://github.com/kriskowal/q) promises 
             ])
         .load();
 
-    promise.then(function (assets) {
-       console.log("assets loaded");
-	});
+  promise.then(function (assets) {
+     console.log("assets loaded");
+  });
 
 
 #### TODO:
