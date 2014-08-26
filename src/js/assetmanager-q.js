@@ -22,10 +22,10 @@
       hasOwnProperty = {}.hasOwnProperty;
 
   var slice = Array.prototype.slice;
-  var nativeBind = sub;
+  var nativeBind = Function.prototype.bind;
 
-  function args_to_array(args) {
-    return slice.call(args, 0);
+  function args_to_array(args, index) {
+    return slice.call(args, index || 0);
   }
 
   function bind(fn, c) {
@@ -37,7 +37,7 @@
     var args = slice.call(arguments, 2);
     return function () {
       return fn.apply(c, args.concat(slice.call(arguments)));
-    }
+    };
   }
 
   function extend(child, parent) {
@@ -70,29 +70,33 @@
   //  Object Functions
   //
   //-------------------------------------------------------------------------
-  function is_type(a, t) {
-    return typeof(a) === t;
+  function is_type(obj, t) {
+    return typeof(obj) === t;
   }
 
-  function is_array(a) {
+  function is_array(obj) {
     if (Array.isArray) {
-      return Array.isArray(a);
+      return Array.isArray(obj);
     }
 
-    return getClass.call(a) === '[object Array]';
+    return getClass.call(obj) === "[object Array]";
   }
 
-  function is_object(a) {
-    return !!(a && is_type(a, "object"));
+  function is_object(obj) {
+    return !!(obj && is_type(obj, "object"));
   }
 
-  function is_function(a) {
-    return !!(a && a.constructor && a.call && a.apply);
+  function is_function(obj) {
+    return !!(obj && obj.constructor && obj.call && obj.apply);
   }
 
-  function is_string(a) {
-    return is_type(a, "string") ||
-      getClass.call(a) === '[object String]';
+  function is_string(obj) {
+    return is_type(obj, "string") ||
+      getClass.call(obj) === "[object String]";
+  }
+
+  function is_undefined(obj) {
+    return obj === void 0;
   }
 
   function obj_has(obj, key) {
@@ -107,17 +111,17 @@
   //-------------------------------------------------------------------------
   function array_merge() {
     return arguments[0].concat(arguments[0],
-      Array.prototype.slice.call(arguments, 1));
+      slice.call(arguments, 1));
   }
 
   function array_size(a) {
-    return is_array(a) ? a.length : 0;
+    return a.length ? a.length : 0;
   }
 
   function array_each(a, cb) {
     if (Array.prototype.forEach) {
       return Array.prototype.forEach.apply(a,
-        Array.prototype.slice.call(arguments, 1));
+        slice.call(arguments, 1));
     }
 
     var c = array_size(args_to_array(arguments)) > 2 ?
@@ -144,16 +148,60 @@
     }, this);
   }
 
-  Events.prototype.on = function (event) {
+  Events.prototype.on = function (event, listener) {
+    if (!obj_has(this._listeners, event)) {
+      throw new Error("No such event: `" + event + "` supported");
+    }
 
+    if (!is_function(listener)) {
+      throw new TypeError("listener is not an function");
+    }
+
+    this._listeners[event].push(listener);
+    return this;
   };
 
-  Events.prototype.off = function (event) {
+  Events.prototype.off = function (event, listener) {
+    if (!obj_has(this._listeners, event)) {
+      throw new Error("No such event: `" + event + "` supported");
+    }
 
+    if (!is_undefined(listener) && !is_function(listener)) {
+      throw new TypeError("listener is not an function");
+    }
+
+    var listeners = this._listeners[event],
+        size = array_size(listeners);
+    // remove all listeners for given event
+    if (is_undefined(listener)) {
+      while (size) {
+        listeners.pop();
+        size--;
+      }
+    }
+    // remove all occurences of current listener
+    else {
+      for (var i = size; i--;) {
+        if (listeners[i] === listener) {
+          listeners.splice(i, 1);
+        }
+      }
+    }
+
+    return this;
   };
 
   Events.prototype.emit = function (event) {
+    if (!obj_has(this._listeners, event)) {
+      throw new Error("No such event: `" + event + "` supported");
+    }
 
+    var args = args_to_array(arguments, 1);
+    array_each(this._listeners[event], function (listener) {
+      listener.apply(listener, args);
+    });
+
+    return this;
   };
 
 
@@ -179,14 +227,17 @@
     this.state = state;
   };
 
-  Asset.protoype.load = function () {
+  Asset.prototype.load = function () {
     if (!this.isPending()) {
       return;
     }
     this.setState(AssetState.LOADING);
     this._image = new Image();
-
-
+    this._image.onload = bind(function () {
+      this.setState(AssetState.LOADED);
+      this.emit("loaded");
+    }, this);
+    this._image.src = this.src;
   };
 
   Asset.prototype.isPending = function () {
@@ -279,17 +330,14 @@
 
     if (size > 0) {
       array_each(assets, function (asset) {
-        image = new Image();
-        image.onload = function () {
-          asset.setState(AssetState.LOADED);
+        asset.on("loaded", function () {
           total++;
           if (total === size) {
             deferred.resolve(assets);
           }
-        };
+        });
 
-        asset.setState(AssetState.LOADING);
-        image.src   = asset.src;
+        asset.load();
       });
     }
     else {

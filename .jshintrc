@@ -12,6 +12,6 @@
   "white": true,
   "indent": 2,
   "undef": true,
-  "-W058": true
+  "-W058": true,
   "maxlen": 80
 }
