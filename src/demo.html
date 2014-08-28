@@ -37,9 +37,6 @@
             <h4>Example Code</h4>
 <pre>
 (function () {
-    var load = true,
-        assetManager = new AssetManager();
-
     function loadImages() {
         if (!load) {
             return;
@@ -47,13 +44,12 @@
         load = false;
 
         var promise =
-            assetManager
-                .add([
-                    {id: "first", src: "images/first.png"},
-                    {id: "second", src: "images/second.gif"},
-                    {id: "third", src: "images/third.jpg"}
-                    ])
-                .load();
+          AMQ.add([
+            {id: "first", src: "images/first.png"},
+            {id: "second", src: "images/second.gif"},
+            {id: "third", src: "images/third.jpg"}
+          ]).load();
+
         promise.then(function (assets) {
             for (var i = 0, l = assets.length; i < l; i++) {
                 document.getElementById(assets[i].id).src = assets[i].src;
@@ -70,26 +66,18 @@
 
         <script src="components/holderjs/holder.js"></script>
         <script src="components/q/q.js"></script>
-        <script src="js/assetmanager-q.js"></script>
+        <script src="js/loader-q.js"></script>
         <script>
         (function () {
-            var load = true,
-                assetManager = new AssetManager();
-
             function loadImages() {
-                if (!load) {
-                    return;
-                }
-                load = false;
-
                 var promise =
-                    assetManager
-                        .add([
+                    AMQ.add([
                             {id: "first", src: "images/first.png"},
                             {id: "second", src: "images/second.gif"},
                             {id: "third", src: "images/third.jpg"}
                             ])
                         .load();
+
                 promise.then(function (assets) {
                     for (var i = 0, l = assets.length; i < l; i++) {
                         document.getElementById(assets[i].id).src = assets[i].src;

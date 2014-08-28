@@ -1,16 +1,15 @@
 {
-  "name": "AssetManager-Q",
-  "title": "AssetManager Q",
-  "version": "0.0.2",
+  "name": "Loader-Q",
+  "title": "Loader Q",
+  "version": "0.0.1",
   "description": "Javascript Asset Manager using the Q promises library",
-  "main": "dist/assetmanager-q.js",
+  "main": "dist/loader-q.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/furusystems/assetmanager-q.git"
   },
   "keywords": [
-    "asset",
-    "manager",
+    "loader",
     "promises",
     "Q",
     "UMD"

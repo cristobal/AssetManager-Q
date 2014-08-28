@@ -1,30 +1,18 @@
-AssetManager-Q
+Loader-Q
 ==============
 
-Javascript Asset Manager using the [Q](https://github.com/kriskowal/q) promises library [UMD](https://github.com/umdjs/umd) compatible. This library is currently under development progress and the API and methods are likely to change in the near future.
+Javascript Loader using the [Q](https://github.com/kriskowal/q) promises library [UMD](https://github.com/umdjs/umd) compatible.
+This library is currently under development progress and the API and methods are likely to change in the near future.
 
 
 ## Example Code
 
-  var assetManager = new AssetManager();
-	var promise = assetManager
-        .add([
-            {id: "first", src: "images/first.png"},
-            {id: "second", src: "images/second.gif"},
-            {id: "third", src: "images/third.jpg"}
-            ])
-        .load();
-
-  promise.then(function (assets) {
-     console.log("assets loaded");
-  });
+   Code goes here
 
 
 #### TODO:
 
-  * static methods default Instance method
-  * multiple calls after load has been called?
-  * timeout for images or assets not loaded
+  * create id's from url instead of numeric, numerica could be an optional feature?
   * load assets other than image supported formats use XHR2 as in preloadjs?
   * cache flags for production make browser remembers the image for faster loading
   * Sequential Wrapper or sequential loader options with pause/resume

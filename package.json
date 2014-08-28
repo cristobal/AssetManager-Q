@@ -1,14 +1,13 @@
 {
-  "name": "AssetManager-Q",
-  "title": "AssetManager Q",
-  "version": "0.0.2",
+  "name": "Loader-Q",
+  "title": "Loader Q",
+  "version": "0.0.1",
   "author": {
     "name": "Cristobal Dabed"
   },
-  "description": "Javascript Asset Manager using the Q promises library",
+  "description": "Javascript Loader using the Q promises library",
   "keywords": [
-    "asset",
-    "manager",
+    "loader",
     "promises",
     "Q",
     "UMD"

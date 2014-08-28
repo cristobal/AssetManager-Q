@@ -46,7 +46,7 @@ module.exports = function (grunt) {
     env: grunt.option('env') || 'dev',
 
     project: {
-      name: 'assetmanager-q',
+      name: 'resources-q',
       source_dir: 'src',
       build_dir: 'build',
       test_dir: 'test',

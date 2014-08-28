@@ -3,12 +3,12 @@
   // AMD
   if (typeof define === 'function' && define.amd) {
     define(['Q'], factory, function (Q) {
-      root.AssetManager = factory(Q);
+      root.Loader = factory(Q);
     });
   }
   // Browser globals
   else {
-    root.AssetManager = factory(Q);
+    root.Loader = factory(Q);
   }
 }(this, function (Q) {
   "use strict";
@@ -103,6 +103,14 @@
     return hasOwnProperty.call(obj, key);
   }
 
+  function obj_each(obj, cb) {
+    var c = array_size(args_to_array(arguments)) > 2 ?
+            arguments[2] : undefined;
+    for (var key in obj) {
+      cb.apply(c, [obj[key], key, obj]);
+    }
+  }
+
 
   //--------------------------------------------------------------------------
   //
@@ -132,9 +140,31 @@
   }
 
   function array_filter(a, cb) {
-    return a;
+    if (Array.prototype.filter) {
+      return Array.prototype.filter.apply(a,
+        slice.call(arguments, 1));
+    }
+
+    var c = array_size(args_to_array(arguments)) > 2 ?
+            arguments[2] : undefined;
+    var s = [];
+    for (var i = 0, l = array_size(a); i < l; i++) {
+      if (cb.apply(c, [a[i], i, a])) {
+        s.push(a[i]);
+      }
+    }
+
+    return s;
   }
 
+  //--------------------------------------------------------------------------
+  //
+  //  Helper Utils
+  //
+  //-------------------------------------------------------------------------
+  function generate_asset_id(url) {
+
+  }
 
   //--------------------------------------------------------------------------
   //
@@ -207,206 +237,143 @@
 
   //--------------------------------------------------------------------------
   //
-  //  Asset
+  //  Loader
   //
   //-------------------------------------------------------------------------
-  var AssetState = {
+  var LoaderState = {
     PENDING: 0,
     LOADING: 1,
-    LOADED:  2
+    LOADED:  2,
+    ERROR:   3
   };
 
-  function Asset(id, src) {
-    this.__construct(["loaded"]);
-    this.id    = id;
+  //--------------------------------------------------------------------------
+  //
+  //  ImageLoader
+  //
+  //-------------------------------------------------------------------------
+
+  function ImageLoader(src) {
+    this.__construct(["loading", "loaded", "error"]);
     this.src   = src;
-    this.state = AssetState.PENDING;
+    this.state = LoaderState.PENDING;
   }
 
-  Asset.prototype.setState = function (state) {
+  ImageLoader.prototype.setState = function (state) {
     this.state = state;
   };
 
-  Asset.prototype.load = function () {
+  ImageLoader.prototype.load = function (defer) {
     if (!this.isPending()) {
       return;
     }
-    this.setState(AssetState.LOADING);
-    this._image = new Image();
-    this._image.onload = bind(function () {
-      this.setState(AssetState.LOADED);
-      this.emit("loaded");
-    }, this);
-    this._image.src = this.src;
+    this.setState(LoaderState.LOADING);
+    var deferred =
+      defer === false ?
+        Q.defer() : undefined;
+
+    this.image = new Image();
+    this.image.onload = bind(this._onload, this, deferred);
+    this.image.onerror = bind(this._onerror, this, deferred);
+    this.image.src = this.src;
+
+    return deferred ?
+      deferred.promise : undefined;
   };
 
-  Asset.prototype.isPending = function () {
-    return this.state === AssetState.PENDING;
+
+  ImageLoader.prototype._onload = function (deferred, load) {
+    this.setState(LoaderState.LOADED);
+    this.emit("loaded");
+    if (deferred) {
+      this._deferred.resolve();
+    }
   };
 
-  Asset.prototype.isLoading = function () {
-    return this.state === AssetState.LOADING;
+
+  ImageLoader.prototype._onerror = function (deferred, error) {
+    this.setState(LoaderState.ERROR);
+    this.emit("error", error);
+    if (deferred) {
+      this._deferred.reject(error);
+    }
   };
 
-  Asset.prototype.isLoaded = function () {
-    return this.state === AssetState.LOADED;
+  ImageLoader.prototype.isPending = function () {
+    return this.state === LoaderState.PENDING;
   };
 
-  extend(Asset, Events);
+  ImageLoader.prototype.isLoading = function () {
+    return this.state === LoaderState.LOADING;
+  };
+
+  ImageLoader.prototype.isLoaded = function () {
+    return this.state === LoaderState.LOADED;
+  };
+
+  ImageLoader.prototype.isError = function () {
+    return this.state === LoaderState.ERROR;
+  };
+
+  extend(ImageLoader, Events);
 
 
   //--------------------------------------------------------------------------
   //
-  //  Asset Manager
+  //  Loader Manager
   //
   //-------------------------------------------------------------------------
-  // TODO: static methods default Instance method
-  // TODO: multiple calls after load has been called?
-  // TODO: timeout for images or assets not loaded
+  function LoaderBatch(items) {
+    this.items = items;
+    this.defered = Q.defer();
+    this.continueOnError = false;
+  }
+
+  LoaderBatch.prototype.pause = function () {
+
+  };
+
+  LoaderBatch.prototype.start = function () {
+
+  };
+
+  //--------------------------------------------------------------------------
+  //
+  //  Loader Manager
+  //
+  //-------------------------------------------------------------------------
+  function LoaderManager() {
+    this.queue = [];
+    this.cache = {};
+  }
+
+  LoaderManager.prototype.add = function () {
+
+  };
+
+  LoaderManager.prototype.batch = function () {
+
+  };
+
+  LoaderManager.prototype.load = function () {
+
+  };
+
+  LoaderManager.prototype.get = function () {
+
+  };
+  extend(LoaderManager, Events);
+
+
+  // TODO: create id's from url if none provided
   // TODO: load assets other than image supported formats
   //       use XHR2 as in preloadjs?
   // TODO: cache flags for production,
   //       make browser remembers the image for faster loading
-  function AssetManager() {
-    this._assets = [];
-    this._id     = 0;
-  }
+  // TODO: configurable option enable sequential loader support for pause/resume
 
-  /**
-   * Add one or more sources to be loaded
-   *   A source can either be an url string,
-   *   or an object composed of id and src i.e.
-   *       {id: "name", src: "url/to/src"}
-   */
-  AssetManager.prototype.add = function () {
-    var args   = args_to_array(arguments),
-        asset  = null,
-        assets = this._assets;
 
-    array_each(args, function (arg) {
-      // is array do recursion
-      if (is_array(arg)) {
-        this.add.apply(this, arg);
-        return;
-      }
+  var RQ = {};
 
-      // Object test
-      else if (is_object(arg) &&
-        (!obj_has(arg, 'src') || !AssetManager.supportedFormat(arg.src))) {
-        return;
-      }
-      else if (is_object(arg)) {
-        asset = new Asset(
-          obj_has(arg, 'id') ? arg.id : this._id++,
-          arg.src
-        );
-      }
-
-      // String
-      else if (is_string(arg) && !AssetManager.supportedFormat(arg)) {
-        return;
-      }
-      else if (is_string(arg)) {
-        asset = new Asset(this._id++, arg);
-      }
-
-      assets.push(asset);
-    }, this);
-
-    return this;
-  };
-
-  /**
-   * Load the assets
-   *
-   * @returns {Promise}
-   */
-  AssetManager.prototype.load = function () {
-    var assets   = this._assets,
-        deferred = Q.defer(),
-        image    = null,
-        size     = array_size(assets),
-        total    = 0;
-
-    if (size > 0) {
-      array_each(assets, function (asset) {
-        asset.on("loaded", function () {
-          total++;
-          if (total === size) {
-            deferred.resolve(assets);
-          }
-        });
-
-        asset.load();
-      });
-    }
-    else {
-      deferred.resolve(assets);
-    }
-
-    return deferred.promise;
-  };
-
-  /**
-   *
-   * @param {string|object}
-   * @return {bool} True or false depending on wether the src has been loaded
-   *                or not
-   */
-  AssetManager.prototype.isLoaded = function (arg) {
-    var id  = null,
-        src = null,
-        isObj = is_object(arg),
-        isStr = is_string(arg);
-
-    if (!isObj || !isStr) {
-      return false;
-    }
-
-    if (isObj && (arg instanceof Asset)) {
-      return arg.loaded();
-    }
-    else if (isObj) {
-      id  = obj_has(arg, 'id') ? arg.id : null;
-      src = obj_has(arg, 'src') ? arg.src : null;
-    }
-    else if (isStr) {
-      src = arg;
-    }
-
-    if (!id || !src) {
-      return false;
-    }
-
-    var assets = this._assets;
-    for (var i = 0, l = array_size(assets); i < l; i++) {
-      if (assets[i].id === id ||
-          assets[i].src === src) {
-        return assets[i].loaded();
-      }
-    }
-
-    return false;
-  };
-
-  /**
-   * An regular expression to use to check wether the given image format
-   * is support or not.
-   */
-  AssetManager.supportedFormatRe = new RegExp(".+\\.(gif|png|jpg|jpeg)$", "i");
-
-  /**
-   * Check wether the source is an support format to load
-   *
-   * @param {string} The src to check on wether the format is supported
-   */
-  AssetManager.supportedFormat = function (src) {
-    if (!is_string(src)) {
-      throw new Error("Supported only accepts strings to test");
-    }
-
-    return AssetManager.supportedFormatRe.test(src);
-  };
-
-  return AssetManager;
+  return RQ;
 }));
